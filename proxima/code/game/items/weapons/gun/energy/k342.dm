@@ -110,7 +110,7 @@
 	desc = "K342 - Kasatka is the latest plasma weapon created by NanoTrasen. It can fire several types of charges: stunning, lethal and net-mode. This one designed specialy for expeditionary team"
 	icon_state = "kasatka_off"
 	item_state = "kasatka"
-	req_access = list(list(access_expedition_shuttle))
+	req_access = list(access_expedition_shuttle)
 	wielded_item_state = "kasatka-wielded"
 	authorized_modes = list(UNAUTHORIZED, UNAUTHORIZED, UNAUTHORIZED)
 	init_firemodes = list(
