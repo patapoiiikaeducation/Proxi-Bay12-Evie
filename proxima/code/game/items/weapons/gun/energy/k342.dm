@@ -106,28 +106,6 @@
 /obj/item/gun/energy/k342/prereg
 	authorized_modes = list(ALWAYS_AUTHORIZED, AUTHORIZED, AUTHORIZED)
 
-/obj/item/gun/energy/k342/explo
-	desc = "K342 - Kasatka is the latest plasma weapon created by NanoTrasen. It can fire several types of charges: stunning, lethal and net-mode. This one designed specialy for expeditionary team"
-	icon_state = "kasatka_off"
-	item_state = "kasatka"
-	req_access = list(access_explorer)
-	wielded_item_state = "kasatka-wielded"
-	authorized_modes = list(UNAUTHORIZED, UNAUTHORIZED, UNAUTHORIZED)
-	init_firemodes = list(
-		list(mode_name="stun charge", projectile_type=/obj/item/projectile/plasma/stun, charge_cost=20, fire_delay=4, projectile_color=COLOR_YELLOW),
-		list(mode_name="plasma charge", projectile_type=/obj/item/projectile/plasma, charge_cost=20, fire_delay=4, projectile_color=COLOR_BLUE_LIGHT),
-		list(mode_name="net charge", projectile_type=/obj/item/projectile/plasma/stun/net, charge_cost=150, fire_delay=20, projectile_color=COLOR_GREEN)
-	)
-
-/obj/item/gun/energy/k342/explo/free_fire()
-	var/my_z = get_z(src)
-	if(!list_find(GLOB.using_map.station_levels, my_z))
-		return TRUE
-	return ..()
-
-/obj/item/gun/energy/k342/explo/prereg
-	authorized_modes = list(AUTHORIZED, AUTHORIZED, ALWAYS_AUTHORIZED)
-
 /obj/item/gun/energy/k342/on_update_icon()
 	. = ..()
 	if(power_supply)
