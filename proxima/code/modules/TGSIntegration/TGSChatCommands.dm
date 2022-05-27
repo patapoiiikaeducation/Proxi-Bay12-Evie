@@ -13,8 +13,8 @@
 	last_irc_status = rtod
 	var/list/adm = get_admin_counts()
 	var/list/allmins = adm["total"]
-	var/status = "**Админы: [allmins.len]**\n(Активные: __*[english_list(adm["present"])]*__\nАФК: __*[english_list(adm["afk"])]*__\nСкрыты: __*[english_list(adm["stealth"])]*__\nБез бана: __*[english_list(adm["noflags"])]*__).\n\n"
-	status += "**Игроки: [GLOB.clients.len]**\n(Активные: __*[get_active_player_count(0,1,0)]*__).\nНастоящий режим: __*[SSticker.mode ? SSticker.mode.name : "Не начался"]*__."
+	var/status = "**Админы: [allmins.len]**\nАктивные: __*[english_list(adm["present"])]*__\nАФК: __*[english_list(adm["afk"])]*__\nСкрыты: __*[english_list(adm["stealth"])]*__\nБез бана: __*[english_list(adm["noflags"])]*__.\n\n"
+	status += "**Игроки: [GLOB.clients.len]**\nАктивные: `[get_active_player_count(0,1,0)]`)\nНастоящий режим: __*[SSticker.mode ? SSticker.mode.name : "Не начался"]*__"
 	return status
 
 /datum/tgs_chat_command/irccheck
@@ -27,7 +27,7 @@
 	if(rtod - last_irc_check < IRC_STATUS_THROTTLE)
 		return
 	last_irc_check = rtod
-	return "[game_id ? "**Раунд № *[game_id]***\n" : ""]__[GLOB.clients.len]__ игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "В процессе" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>!**"
+	return "[game_id ? "**Раунд №** `[game_id]`\n" : ""]`[GLOB.clients.len]` игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд: __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "Активен" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>!**"
 
 /datum/tgs_chat_command/ircmanifest
 	name = "manifest"
@@ -65,7 +65,7 @@
 			for(var/list/person in dept_list)
 				var/datum/mil_branch/branch_obj = mil_branches.get_branch(person["branch"])
 				var/datum/mil_rank/rank_obj = mil_branches.get_rank(person["branch"], person["milrank"])
-				msg += "__[person["rank"]]__ - `[branch_obj!=null ? "[branch_obj.name_short] " : ""][rank_obj!=null ? "[rank_obj.name_short] " : ""][person["name"]]`"
+				msg += "[person["rank"]] - `[branch_obj!=null ? "[branch_obj.name_short == "" ? "" : "[branch_obj.name_short] "]" : ""][rank_obj!=null && rank_obj.name_short!="" ? "[rank_obj.name_short] " : ""][replacetext_char(person["name"], "&#39;", "'")]`"
 	return jointext(msg, "\n")
 
 /** -- Отвечать на тикеты из дискорда? Я подумаю над этим
@@ -108,9 +108,9 @@
 			continue
 		total_staff++
 		if(check_rights(R_ADMIN,0,C))
-			line += "[C] в ранге **["\improper[C.holder.rank]"]**"
+			line += "*[C]* в ранге ***["\improper[C.holder.rank]"]***"
 		else
-			line += "[C] в ранге ["\improper[C.holder.rank]"]"
+			line += "*[C]* в ранге *["\improper[C.holder.rank]"]*"
 		if(!C.is_afk())
 			active_staff++
 		if(can_investigate)
