@@ -13,8 +13,8 @@
 	last_irc_status = rtod
 	var/list/adm = get_admin_counts()
 	var/list/allmins = adm["total"]
-	var/status = "**Админы: [allmins.len]**\nАктивные: __*[english_list(adm["present"])]*__\nАФК: __*[english_list(adm["afk"])]*__\nСкрыты: __*[english_list(adm["stealth"])]*__\nБез бана: __*[english_list(adm["noflags"])]*__.\n\n"
-	status += "**Игроки: [GLOB.clients.len]**\nАктивные: `[get_active_player_count(0,1,0)]`\nНастоящий режим: __*[SSticker.mode ? SSticker.mode.name : "Не начался"]*__"
+	var/status = "**Админы: [allmins.len]**\nАктивные: __*[english_list(adm["present"])]*__\nАФК: __*[english_list(adm["afk"])]*__\nСкрыты: __*[english_list(adm["stealth"])]*__\nБез бана: __*[english_list(adm["noflags"])]*__\n\n"
+	status += "**Игроки: [GLOB.clients.len]**\nАктивные: `[get_active_player_count(0,1,0)]`\nПубличный режим: __*[PUBLIC_GAME_MODE]*__\nНастоящий режим: __*[SSticker.mode ? SSticker.mode.name : "Не начался"]*__"
 	return status
 
 /datum/tgs_chat_command/irccheck
@@ -27,7 +27,7 @@
 	if(rtod - last_irc_check < IRC_STATUS_THROTTLE)
 		return
 	last_irc_check = rtod
-	return "[game_id ? "**Раунд №** `[game_id]`\n" : ""]`[GLOB.clients.len]` игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд: __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "Активен" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>**"
+	return "[game_id ? "**Раунд №** `[game_id]`\n" : ""]Игроков: `[GLOB.clients.len]`\nКарта: __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд: __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "Активен" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>**"
 
 /datum/tgs_chat_command/ircmanifest
 	name = "manifest"
@@ -136,7 +136,7 @@ GLOBAL_LIST(round_end_notifiees)
 /datum/tgs_chat_command/notify
 	name = "notify"
 	help_text = "Уведомляет вызвавшего по окончанию раунда"
-	admin_only = TRUE
+	//admin_only = TRUE
 
 /datum/tgs_chat_command/notify/Run(datum/tgs_chat_user/sender, params)
 	if(GAME_STATE == RUNLEVEL_POSTGAME)
