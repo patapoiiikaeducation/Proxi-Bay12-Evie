@@ -16,14 +16,26 @@ config_setting should be one of the following:
 		world.TgsTargetedChatBroadcast(message, FALSE)
 		return
 
+	var/debug = list()
+	debug += "**Отладка каналов**\nПолучен тэг: `[config_setting]`\nДоступны следующие каналы:"
+
 	var/list/channels_to_use = list()
 	for(var/I in world.TgsChatChannelInfo())
 		var/datum/tgs_chat_channel/channel = I
+		
+		debug += "ID: `[channel.id]` isAdmin: [channel.is_admin_channel?"TRUE":"FALSE"] customTag: [channel.custom_tag == null?"NULL":"[channel.custom_tag]"] friendlyName: [channel.friendly_name] pseudoLink: <#[channel.id]>"
+		
 		if(channel.tag == config_setting)
 			channels_to_use += channel
+			
+			debug += "^^^ That channel passed ^^^"
 
 	if(channels_to_use.len)
 		world.TgsChatBroadcast(message, channels_to_use)
+	
+	debug += "\n**Само сообщение для передачи:**\n"
+	debug += message
+	world.TgsTargetedChatBroadcast(jointext(debug, "\n"), TRUE)
 
 /proc/get_admin_counts(requiredflags = R_BAN)
 	. = list("total" = list(), "noflags" = list(), "afk" = list(), "stealth" = list(), "present" = list())
