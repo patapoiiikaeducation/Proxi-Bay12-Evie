@@ -27,7 +27,7 @@
 	if(rtod - last_irc_check < IRC_STATUS_THROTTLE)
 		return
 	last_irc_check = rtod
-	return "[GLOB.game_id ? "**Раунд № *[GLOB.game_id]***\n" : ""]__[GLOB.clients.len]__ игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "В процессе" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>!**"
+	return "[game_id ? "**Раунд № *[game_id]***\n" : ""]__[GLOB.clients.len]__ игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "В процессе" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>!**"
 
 /datum/tgs_chat_command/ircmanifest
 	name = "manifest"
@@ -71,7 +71,7 @@
 /** -- Отвечать на тикеты из дискорда? Я подумаю над этим
 /datum/tgs_chat_command/ahelp
 	name = "ahelp"
-	help_text = "<ckey|ticket #> <message|ticket <close|resolve|icissue|reject|reopen <ticket #>|list>>"
+	help_text = ""
 	admin_only = TRUE
 
 /datum/tgs_chat_command/ahelp/Run(datum/tgs_chat_user/sender, params)
