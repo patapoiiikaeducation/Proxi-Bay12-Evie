@@ -27,7 +27,7 @@
 	if(rtod - last_irc_check < IRC_STATUS_THROTTLE)
 		return
 	last_irc_check = rtod
-	return "[game_id ? "**Раунд №** `[game_id]`\n" : ""]`[GLOB.clients.len]` игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд: __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "Активен" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>!**"
+	return "[game_id ? "**Раунд №** `[game_id]`\n" : ""]`[GLOB.clients.len]` игроков на __[GLOB.using_map.full_name]__\nРежим: __[PUBLIC_GAME_MODE]__\nРаунд: __[GAME_STATE != RUNLEVEL_LOBBY ? (GAME_STATE != RUNLEVEL_POSTGAME ? "Активен" : "Заканчивается") : "Подготавливается"]__\n**Заходи к нам: <[get_world_url()]>**"
 
 /datum/tgs_chat_command/ircmanifest
 	name = "manifest"
