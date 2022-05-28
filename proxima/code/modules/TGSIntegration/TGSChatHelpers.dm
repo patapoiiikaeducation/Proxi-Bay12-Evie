@@ -35,7 +35,7 @@ config_setting should be one of the following:
 
 	debug += "\n**Само сообщение для передачи:**\n"
 	debug += message
-	world.TgsTargetedChatBroadcast(jointext(debug, "\n"), TRUE)
+	//world.TgsTargetedChatBroadcast(jointext(debug, "\n"), TRUE)
 
 /proc/get_admin_counts(requiredflags = R_BAN)
 	. = list("total" = list(), "noflags" = list(), "afk" = list(), "stealth" = list(), "present" = list())
