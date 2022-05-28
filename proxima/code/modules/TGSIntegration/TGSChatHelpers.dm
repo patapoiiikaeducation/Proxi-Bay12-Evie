@@ -23,7 +23,7 @@ config_setting should be one of the following:
 	for(var/I in world.TgsChatChannelInfo())
 		var/datum/tgs_chat_channel/channel = I
 
-		debug += "ID: `[channel.id]` isAdmin: [channel.is_admin_channel?"TRUE":"FALSE"] customTag: [channel.custom_tag == null?"NULL":"[channel.custom_tag]"] friendlyName: [channel.friendly_name] pseudoLink: <#[channel.id]>"
+		debug += "ID: `[channel.id]` isAdmin: [channel.is_admin_channel?"TRUE":"FALSE"] customTag: `[channel.custom_tag == null?"NULL":"[channel.custom_tag]"]` friendlyName: [channel.friendly_name] pseudoLink: <#[channel.id]>"
 
 		if(channel.tag == config_setting)
 			channels_to_use += channel
@@ -35,7 +35,7 @@ config_setting should be one of the following:
 
 	debug += "\n**Само сообщение для передачи:**\n"
 	debug += message
-	//world.TgsTargetedChatBroadcast(jointext(debug, "\n"), TRUE)
+	world.TgsTargetedChatBroadcast(jointext(debug, "\n"), TRUE)
 
 /proc/get_admin_counts(requiredflags = R_BAN)
 	. = list("total" = list(), "noflags" = list(), "afk" = list(), "stealth" = list(), "present" = list())
