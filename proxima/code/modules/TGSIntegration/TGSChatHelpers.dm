@@ -25,7 +25,7 @@ config_setting should be one of the following:
 
 		debug += "ID: `[channel.id]` isAdmin: [channel.is_admin_channel?"TRUE":"FALSE"] customTag: `[channel.custom_tag == null?"NULL":"[channel.custom_tag]"]` friendlyName: [channel.friendly_name] pseudoLink: <#[channel.id]>"
 
-		if(channel.tag == config_setting)
+		if(channel.custom_tag == config_setting)
 			channels_to_use += channel
 
 			debug += "^^^ That channel passed ^^^"
