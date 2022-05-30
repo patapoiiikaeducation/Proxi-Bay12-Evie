@@ -270,7 +270,7 @@ GLOBAL_LIST(round_end_notifiees)
 				// PARAMS CHECK FINISH
 
 				// Fax creation
-				/obj/item/paper/admin/adminfax = new /obj/item/paper/admin( null )
+				var/obj/item/paper/admin/adminfax = new /obj/item/paper/admin( null )
 				adminfax.admindatum = null // May be it need to be reworked
 
 				adminfax.set_language(lang, TRUE)
@@ -334,14 +334,14 @@ GLOBAL_LIST(round_end_notifiees)
 		else
 			return "Не удалось распознать аргумент `[parampampam[1]]`"
 
-/datum/tgs_chat_command/fax/proc/paper2text(var/item/paper/paper)
+/datum/tgs_chat_command/fax/proc/paper2text(var/obj/item/paper/paper)
 	. = list()
 	. += "**Название:** [paper.name]"
 	. += "**Язык написания:** [paper.language.name]"
 	. += "**Содержимое:**\n*Внимание - чистый HTML*\n```html\n[paper.info]```"
 	. = jointext(., "\n")
 
-/datum/tgs_chat_command/fax/proc/photo2text(var/item/photo/photo)
+/datum/tgs_chat_command/fax/proc/photo2text(var/obj/item/photo/photo)
 	. = list()
 	. += "__*Просмотр фото не может быть имплементирован, но вот некоторые данные о нем*__"
 	. += "**Название:** [photo.name]"
