@@ -147,7 +147,7 @@ GLOBAL_LIST(round_end_notifiees)
 
 /datum/tgs_chat_command/fax
 	name = "fax"
-	help_text = "Используется для просмотра, создания и овтетов на факсы. Использование `fax комманда аргументы`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[{FROM} {DESTINATION} {TITLE} {STAMP} {LANGUAGE} {HEADER_LOGO} {FOOTER} {PEN_MODE} {TEXT}}\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
+	help_text = "Используется для просмотра, создания и овтетов на факсы. Использование `fax комманда аргументы`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\{FROM\} \{DESTINATION\} \{TITLE\} \{STAMP\} \{LANGUAGE\} \{HEADER_LOGO\} \{FOOTER\} \{PEN_MODE\} \{TEXT\}}\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
 	admin_only = TRUE
 
 /datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
@@ -182,6 +182,7 @@ GLOBAL_LIST(round_end_notifiees)
 					var/obj/item/paper_bundle/bundle = item
 					world.TgsChatBroadcast("__*Пачка документов*__", sender.channel)
 					for (var/page = 1, page <= bundle.pages.len, page++)
+						var/list/msg = list()
 						msg += "===== Страница № `[page]` ====="
 						msg += istype(bundle.pages[page], /obj/item/paper) ? paper2text(bundle.pages[page]) : istype(bundle.pages[page], /obj/item/photo) ? photo2text(bundle.pages[page]) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [bundle.pages[page].type]"
 						msg += "--------------------------"
@@ -265,7 +266,6 @@ GLOBAL_LIST(round_end_notifiees)
 					return "Ваш текст был уничтожен санитайзером. GGWP"
 				t = replacetext_char(t, "\n", "<BR>")
 				t = replacetext_char(t, "\[field\]", "") // No fields sorry
-				t = parsepencode(t, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
 
 				// PARAMS CHECK FINISH
 
@@ -282,6 +282,7 @@ GLOBAL_LIST(round_end_notifiees)
 				adminfax.info = t
 				adminfax.generateHeader()
 				adminfax.generateFooter()
+				t = adminfax.parsepencode(t, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
 
 				if (adminfax.headerOn)
 					adminfax.info = adminfax.header + adminfax.info
@@ -328,7 +329,7 @@ GLOBAL_LIST(round_end_notifiees)
 					else
 						failure += machine.department
 
-				QDEL_IN(adminfax, 100 * reciever.length)
+				QDEL_IN(adminfax, 100 * reciever.len)
 
 				return "[success.length == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.length == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")]"]"
 		else
