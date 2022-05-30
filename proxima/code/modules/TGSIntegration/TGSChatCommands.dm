@@ -168,7 +168,8 @@ GLOBAL_LIST(round_end_notifiees)
 					var/list/msg = list()
 					msg += "**Вот доступные факсы:**"
 					for(var/i=1, i>=GLOB.adminfaxes.len, i++)
-						msg += "№ `[i]` | [GLOB.adminfaxes[i].name]"
+						var/obj/machinery/photocopier/faxmachine/obj = GLOB.adminfaxes[i]
+						msg += "№ `[i]` | [obj.name]"
 					return jointext(msg, "\n")
 				else
 					return "В этом раунде факсов для админов не было"
@@ -184,7 +185,8 @@ GLOBAL_LIST(round_end_notifiees)
 					for (var/page = 1, page <= bundle.pages.len, page++)
 						var/list/msg = list()
 						msg += "===== Страница № `[page]` ====="
-						msg += istype(bundle.pages[page], /obj/item/paper) ? paper2text(bundle.pages[page]) : istype(bundle.pages[page], /obj/item/photo) ? photo2text(bundle.pages[page]) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [bundle.pages[page].type]"
+						var/obj/item/obj = bundle.pages[page]
+						msg += istype(obj, /obj/item/paper) ? paper2text(obj) : istype(obj, /obj/item/photo) ? photo2text(obj) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [obj.type]"
 						msg += "--------------------------"
 						world.TgsChatBroadcast(jointext(msg, "\n"), sender.channel)
 					return "__*Конец пачки документов*__"
@@ -291,7 +293,7 @@ GLOBAL_LIST(round_end_notifiees)
 
 				adminfax.SetName("[adminfax.origin] - [title]")
 				adminfax.desc = "This is a paper titled '" + adminfax.name + "'."
-					if(shouldStamp)
+
 				if (stamp)
 					adminfax.stamps += "<hr><i>This paper has been stamped by the [adminfax.origin] Quantum Relay.</i>"
 
@@ -331,7 +333,7 @@ GLOBAL_LIST(round_end_notifiees)
 
 				QDEL_IN(adminfax, 100 * reciever.len)
 
-				return "[success.length == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.length == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")]"]"
+				return "[success.len == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.len == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")]"]"
 		else
 			return "Не удалось распознать аргумент `[parampampam[1]]`"
 
