@@ -144,3 +144,209 @@ GLOBAL_LIST(round_end_notifiees)
 	LAZYINITLIST(GLOB.round_end_notifiees)
 	GLOB.round_end_notifiees[sender.mention] = TRUE
 	return "Я уведомлю [sender.mention] когда раунд закончится."
+
+/datum/tgs_chat_command/fax
+	name = "fax"
+	help_text = "Используется для просмотра, создания и овтетов на факсы. Использование `fax комманда аргументы`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[{FROM} {DESTINATION} {TITLE} {STAMP} {LANGUAGE} {HEADER_LOGO} {FOOTER} {PEN_MODE} {TEXT}}\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
+	admin_only = TRUE
+
+/datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
+	var/list/parampampam = splittext_char(params, " ")
+
+	// TODO Заставить подтягиваться доступные логотипы динамически
+	// Look at /obj/item/paper/admin
+	var/logo_list = list("sollogo.png","eclogo.png","fleetlogo.png","armylogo.png","exologo.png","ntlogo.png","daislogo.png","xynlogo.png","terralogo.png", "sfplogo.png", "torchlogo.png")
+
+
+	if (parampampam.len == 0)
+		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\n[help_text]"
+
+	switch(parampampam[1])
+		if("view")
+			if(parampampam.len == 1)
+				if(GLOB.adminfaxes)
+					var/list/msg = list()
+					msg += "**Вот доступные факсы:**"
+					for(var/i=1, i>=GLOB.adminfaxes.len, i++)
+						msg += "№ `[i]` | [GLOB.adminfaxes[i].name]"
+					return jointext(msg, "\n")
+				else
+					return "В этом раунде факсов для админов не было"
+			else if(text2num(parampampam[2]) != null && text2num(parampampam[2]) <= GLOB.adminfaxes.len)
+				var/obj/item/item = GLOB.adminfaxes[text2num(parampampam[2])]
+				if (istype(item, /obj/item/paper))
+					return paper2text(item)
+				else if (istype(item, /obj/item/photo))
+					return photo2text(item)
+				else if (istype(item, /obj/item/paper_bundle))
+					var/obj/item/paper_bundle/bundle = item
+					world.TgsChatBroadcast("__*Пачка документов*__", sender.channel)
+					for (var/page = 1, page <= bundle.pages.len, page++)
+						msg += "===== Страница № `[page]` ====="
+						msg += istype(bundle.pages[page], /obj/item/paper) ? paper2text(bundle.pages[page]) : istype(bundle.pages[page], /obj/item/photo) ? photo2text(bundle.pages[page]) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [bundle.pages[page].type]"
+						msg += "--------------------------"
+						world.TgsChatBroadcast(jointext(msg, "\n"), sender.channel)
+					return "__*Конец пачки документов*__"
+				else return "Не удалось определить тип факса. Это баг сообщите куда подальше. Тип факса `[item.type]`"
+			else return "Не удалось найти факс под номером № `[parampampam[2]]`"
+
+		if("send")
+			if(parampampam.len == 1)
+				var/list/msg = list()
+				msg += "__**Помощь по адресам и логотипам**__"
+				msg += "*Доступные логотипы:* NULL | EMPTY | [jointext(logo_list, " | ")]"
+				var/list/selectable_languages = list()
+				for (var/key in global.all_languages)
+					var/datum/language/L = global.all_languages[key]
+					if (L.has_written_form)
+						selectable_languages += L.name
+				msg += "*Доступные языки:* [jointext(selectable_languages, " | ")]"
+				msg += "*Доступные адресаты:* [jointext(GLOB.alldepartments, " | ")]"
+				return jointext(msg, "\n")
+			else if(parampampam.len < 10) return "Недостаточно кол-во аргументов. Требуется `9` получено `[parampampam.len - 1]`"
+			else
+				var/from = parampampam[2]
+				var/destination = parampampam[3]
+				var/title = parampampam[4]
+				var/stamp = parampampam[5]
+				var/language = parampampam[6]
+				var/headerLogo = parampampam[7]
+				var/footer = parampampam[8]
+				var/penMode = parampampam[9]
+				var/text = parampampam[10]
+				// PARAMS CHECK START
+
+				// Destination
+				var/list/reciever = list()
+				for(var/obj/machinery/photocopier/faxmachine/sendto in GLOB.allfaxes)
+					if (sendto.department == destination)
+						reciever += sendto
+				if(reciever.len == 0)
+					return "Не удалось найти ни один факс по адресу `[destination]`"
+
+				// Language
+				var/datum/language/lang
+				lang = global.all_languages[language]
+				if(!lang)
+					return "Не удалось найти указанный язык `[language]`"
+				if(!lang.has_written_form)
+					return "У языка `[language]` нет письменной формы. Укажите другой язык."
+
+				// Header - Logo
+				if (!(headerLogo in logo_list))
+					if (!(headerLogo in list("NULL","EMPTY")))
+						return "Не удалось найти логотип `[headerLogo]`"
+
+				// Stamp
+				if(stamp == "TRUE" || stamp == "1" || stamp == TRUE)
+					stamp = TRUE
+				else if(stamp == "FALSE" || stamp == "0" || stamp == FALSE)
+					stamp = FALSE
+				else return "Неизвестное состояние штампа `[stamp]`"
+
+				// Footer
+				if(footer == "TRUE" || footer == "1" || footer == TRUE)
+					footer = TRUE
+				else if(footer == "FALSE" || footer == "0" || footer == FALSE)
+					footer = FALSE
+				else return "Неизвестное состояние нижнего текста `[footer]`"
+
+				// Pen Mode
+				if(penMode == "PEN")
+					penMode = TRUE
+				else if(penMode == "CRAYON")
+					penMode = FALSE
+				else return "Неизвестное состояние ручки или мелка `[penMode]`"
+
+				// Text
+				text = replacetext_char(text, "```", "")
+				var/t = sanitize(text, MAX_PAPER_MESSAGE_LEN, extra = 0)
+				if(!t)
+					return "Ваш текст был уничтожен санитайзером. GGWP"
+				t = replacetext_char(t, "\n", "<BR>")
+				t = replacetext_char(t, "\[field\]", "") // No fields sorry
+				t = parsepencode(t, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
+
+				// PARAMS CHECK FINISH
+
+				// Fax creation
+				/obj/item/paper/admin/adminfax = new /obj/item/paper/admin( null )
+				adminfax.admindatum = null // May be it need to be reworked
+
+				adminfax.set_language(lang, TRUE)
+				adminfax.origin = from
+				adminfax.isCrayon = !penMode
+				adminfax.headerOn = headerLogo != "NULL"
+				adminfax.logo = headerLogo == "NULL" ? "" : headerLogo == "EMPTY" ? "" : headerLogo
+				adminfax.footerOn = footer
+				adminfax.info = t
+				adminfax.generateHeader()
+				adminfax.generateFooter()
+
+				if (adminfax.headerOn)
+					adminfax.info = adminfax.header + adminfax.info
+				if (adminfax.footerOn)
+					adminfax.info += adminfax.footer
+
+				adminfax.SetName("[adminfax.origin] - [title]")
+				adminfax.desc = "This is a paper titled '" + adminfax.name + "'."
+					if(shouldStamp)
+				if (stamp)
+					adminfax.stamps += "<hr><i>This paper has been stamped by the [adminfax.origin] Quantum Relay.</i>"
+
+					var/image/stampoverlay = image('icons/obj/bureaucracy.dmi')
+					var/x
+					var/y
+					x = rand(-2, 0)
+					y = rand(-1, 2)
+					adminfax.offset_x += x
+					adminfax.offset_y += y
+					stampoverlay.pixel_x = x
+					stampoverlay.pixel_y = y
+
+					if(!adminfax.ico)
+						adminfax.ico = new
+					adminfax.ico += "paper_stamp-boss"
+					stampoverlay.icon_state = "paper_stamp-boss"
+
+					if(!adminfax.stamped)
+						adminfax.stamped = new
+					adminfax.stamped += /obj/item/stamp/boss
+					adminfax.overlays += stampoverlay
+
+				var/obj/item/rcvdcopy
+				var/obj/machinery/photocopier/faxmachine/cloner = pick(reciever)
+				rcvdcopy = cloner.copy(adminfax)
+				rcvdcopy.forceMove(null) //hopefully this shouldn't cause trouble
+				GLOB.adminfaxes += rcvdcopy
+
+				var/list/failure = list()
+				var/list/success = list()
+				for (var/obj/machinery/photocopier/faxmachine/machine in reciever)
+					if (machine.recievefax(adminfax))
+						success += machine.department
+					else
+						failure += machine.department
+
+				QDEL_IN(adminfax, 100 * reciever.length)
+
+				return "[success.length == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.length == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")]"]"
+		else
+			return "Не удалось распознать аргумент `[parampampam[1]]`"
+
+/datum/tgs_chat_command/fax/proc/paper2text(var/item/paper/paper)
+	. = list()
+	. += "**Название:** [paper.name]"
+	. += "**Язык написания:** [paper.language.name]"
+	. += "**Содержимое:**\n*Внимание - чистый HTML*\n```html\n[paper.info]```"
+	. = jointext(., "\n")
+
+/datum/tgs_chat_command/fax/proc/photo2text(var/item/photo/photo)
+	. = list()
+	. += "__*Просмотр фото не может быть имплементирован, но вот некоторые данные о нем*__"
+	. += "**Название:** [photo.name]"
+	if(photo.scribble)
+		. += "**Подпись с обратной стороны:** [photo.scribble]"
+	. += "**Размер фото (в тайлах):** [photo.photo_size]X[photo.photo_size]"
+	. += "**Описание:** [photo.desc]"
+	. = jointext(., "\n")
