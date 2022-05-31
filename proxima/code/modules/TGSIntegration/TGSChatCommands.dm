@@ -162,7 +162,9 @@ GLOBAL_LIST(round_end_notifiees)
 		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\n[help_text]"
 
 	switch(parampampam[1])
+		// Просмотр факсов
 		if("view")
+			// Без аргументов
 			if(parampampam.len == 1)
 				if(GLOB.adminfaxes)
 					var/list/msg = list()
@@ -173,12 +175,15 @@ GLOBAL_LIST(round_end_notifiees)
 					return jointext(msg, "\n")
 				else
 					return "В этом раунде факсов для админов не было"
+			// С айди, и айди существует
 			else if(text2num(parampampam[2]) != null && text2num(parampampam[2]) <= GLOB.adminfaxes.len)
 				var/obj/item/item = GLOB.adminfaxes[text2num(parampampam[2])]
 				if (istype(item, /obj/item/paper))
 					return paper2text(item)
+
 				else if (istype(item, /obj/item/photo))
 					return photo2text(item)
+
 				else if (istype(item, /obj/item/paper_bundle))
 					var/obj/item/paper_bundle/bundle = item
 					world.TgsChatBroadcast("__*Пачка документов*__", sender.channel)
@@ -190,10 +195,14 @@ GLOBAL_LIST(round_end_notifiees)
 						msg += "--------------------------"
 						world.TgsChatBroadcast(jointext(msg, "\n"), sender.channel)
 					return "__*Конец пачки документов*__"
+
 				else return "Не удалось определить тип факса. Это баг сообщите куда подальше. Тип факса `[item.type]`"
+			// Нет факса с айди
 			else return "Не удалось найти факс под номером № `[parampampam[2]]`"
 
+		// Отправка факса
 		if("send")
+			// Без аргументов - подсказка
 			if(parampampam.len == 1)
 				var/list/msg = list()
 				msg += "__**Помощь по адресам и логотипам**__"
@@ -206,7 +215,10 @@ GLOBAL_LIST(round_end_notifiees)
 				msg += "*Доступные языки:* [jointext(selectable_languages, " | ")]"
 				msg += "*Доступные адресаты:* [jointext(GLOB.alldepartments, " | ")]"
 				return jointext(msg, "\n")
+
+			// Не хватает аргументов
 			else if(parampampam.len < 10) return "Недостаточно кол-во аргументов. Требуется `9` получено `[parampampam.len - 1]`"
+			// Отправка факса
 			else
 				var/from = parampampam[2]
 				var/destination = parampampam[3]
@@ -275,13 +287,15 @@ GLOBAL_LIST(round_end_notifiees)
 				var/obj/item/paper/admin/adminfax = new /obj/item/paper/admin( null )
 				adminfax.admindatum = null // May be it need to be reworked
 
-				adminfax.set_language(lang, TRUE)
+				adminfax.set_language(lang, TRUE)	// Нужен только язык и Лого. Остальное, де факто - мусор
+				adminfax.logo = headerLogo == "NULL" ? "" : headerLogo == "EMPTY" ? "" : headerLogo
 				adminfax.origin = from
 				adminfax.isCrayon = !penMode
 				adminfax.headerOn = headerLogo != "NULL"
-				adminfax.logo = headerLogo == "NULL" ? "" : headerLogo == "EMPTY" ? "" : headerLogo
 				adminfax.footerOn = footer
 				adminfax.info = t
+
+				// Это делается при отправке так или иначе
 				adminfax.generateHeader()
 				adminfax.generateFooter()
 				t = adminfax.parsepencode(t, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
@@ -294,6 +308,7 @@ GLOBAL_LIST(round_end_notifiees)
 				adminfax.SetName("[adminfax.origin] - [title]")
 				adminfax.desc = "This is a paper titled '" + adminfax.name + "'."
 
+				// Я не знаю зачем так сложно с печатью
 				if (stamp)
 					adminfax.stamps += "<hr><i>This paper has been stamped by the [adminfax.origin] Quantum Relay.</i>"
 
@@ -317,6 +332,7 @@ GLOBAL_LIST(round_end_notifiees)
 					adminfax.stamped += /obj/item/stamp/boss
 					adminfax.overlays += stampoverlay
 
+				// А вы знали, что когда админ печатает вам факс, то копия которая сохраняется в админских датумах так же жрет тоннер?
 				var/obj/item/rcvdcopy
 				var/obj/machinery/photocopier/faxmachine/cloner = pick(reciever)
 				rcvdcopy = cloner.copy(adminfax)
@@ -333,17 +349,21 @@ GLOBAL_LIST(round_end_notifiees)
 
 				QDEL_IN(adminfax, 100 * reciever.len)
 
-				return "[success.len == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.len == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")]"]"
+				return "[success.len == 0 ? "Факс не удалось доставить до адресата (сломан/обесточен)" : failure.len == 0 ? "Факс успешно доставлен до всех адресатов" : "Факс был *доставлен* до: [jointext(success, ", ")]\nФакс *не был доставлен* до [jointext(failure, ", ")] - (сломан/обесточен)"]"
 		else
+			// Я могу только прочитать или написать факс
 			return "Не удалось распознать аргумент `[parampampam[1]]`"
 
+// Костыль для превращения факса в текст
 /datum/tgs_chat_command/fax/proc/paper2text(var/obj/item/paper/paper)
 	. = list()
 	. += "**Название:** [paper.name]"
 	. += "**Язык написания:** [paper.language.name]"
+	// TODO пропарсить HTML в разметку, принимаемую дискордом?
 	. += "**Содержимое:**\n*Внимание - чистый HTML*\n```html\n[paper.info]```"
 	. = jointext(., "\n")
 
+// Костыль для превращения фото в текст
 /datum/tgs_chat_command/fax/proc/photo2text(var/obj/item/photo/photo)
 	. = list()
 	. += "__*Просмотр фото не может быть имплементирован, но вот некоторые данные о нем*__"
