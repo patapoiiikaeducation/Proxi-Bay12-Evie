@@ -43,7 +43,8 @@
 #define TGS_WARNING_LOG(message) log_error("TGS warning: [##message]")
 
 /// Write an error `message` to a server log.
-#define TGS_ERROR_LOG(message) log_error("TGS error: [##message]")
+//#define TGS_ERROR_LOG(message) log_error("TGS error: [##message]")
+#define TGS_ERROR_LOG(message)  crash_with("[##message]")
 
 /// Get the number of connected /clients.
 #define TGS_CLIENT_COUNT
