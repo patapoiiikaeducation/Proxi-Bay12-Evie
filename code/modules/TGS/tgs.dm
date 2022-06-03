@@ -352,10 +352,9 @@
 
 var/global/client_count = 0
 
-/world/New()
-	..()
+hook/startup/proc/InitTgs()
 	TgsNew()
-	TgsInitializationComplete()
+	return TRUE
 
 /world/Reboot()
 	TgsReboot()

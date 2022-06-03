@@ -167,7 +167,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 
 	if(delay)
 		sleep(delay)
-
+	TgsInitializationComplete()	// PROXIMA TGS INIT FINILIZE
 	if(init_sss)
 		init_subtypes(/datum/controller/subsystem, subsystems)
 
