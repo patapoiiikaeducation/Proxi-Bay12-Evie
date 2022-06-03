@@ -43,8 +43,7 @@
 #define TGS_WARNING_LOG(message) log_error("TGS warning: [##message]")
 
 /// Write an error `message` to a server log.
-//#define TGS_ERROR_LOG(message) log_error("TGS error: [##message]")
-#define TGS_ERROR_LOG(message)  crash_with("[##message]")
+#define TGS_ERROR_LOG(message) log_error("TGS error: [##message]")
 
 /// Get the number of connected /clients.
 #define TGS_CLIENT_COUNT
@@ -356,6 +355,10 @@ var/global/client_count = 0
 hook/startup/proc/InitTgs()
 	world.TgsNew()
 	return TRUE
+
+/world/New()
+	. = ..()
+	world.TgsInitializationComplete()
 
 /world/Reboot()
 	TgsReboot()
