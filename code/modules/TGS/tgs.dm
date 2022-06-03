@@ -353,7 +353,7 @@
 var/global/client_count = 0
 
 hook/startup/proc/InitTgs()
-	TgsNew()
+	world.TgsNew()
 	return TRUE
 
 /world/Reboot()
