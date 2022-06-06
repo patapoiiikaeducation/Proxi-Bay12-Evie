@@ -151,7 +151,8 @@ GLOBAL_LIST(round_end_notifiees)
 	admin_only = TRUE
 
 /datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
-	var/list/parampampam = splittext_char(params, " ")
+	var/list/textTrue = copytext_char(params, findtext_char(params, "```"))
+	var/list/parampampam = splittext_char(textTrue==null ? params : trim(copytext_char(params, 1, findtext_char(params, "```")-1), ", "))
 
 	// TODO Заставить подтягиваться доступные логотипы динамически
 	// Look at /obj/item/paper/admin
@@ -159,18 +160,18 @@ GLOBAL_LIST(round_end_notifiees)
 
 
 	if (parampampam.len == 0)
-		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\nИспользование `fax комманда аргументы`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\[FROM\] \[DESTINATION\] \[TITLE\] \[STAMP\] \[LANGUAGE\] \[HEADER_LOGO\] \[FOOTER\] \[PEN_MODE\] \[TEXT\]\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
+		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\nИспользование `fax комманда, аргументы(через запятую!!!)`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\[FROM\] \[DESTINATION\] \[TITLE\] \[STAMP\] \[LANGUAGE\] \[HEADER_LOGO\] \[FOOTER\] \[PEN_MODE\] \[TEXT\]\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
 
 	switch(parampampam[1])
 		// Просмотр факсов
 		if("view")
 			// Без аргументов
 			if(parampampam.len == 1)
-				if(GLOB.adminfaxes)
+				if(LAZYLEN(GLOB.adminfaxes))
 					var/list/msg = list()
 					msg += "**Вот доступные факсы:**"
-					for(var/i=1, i>=GLOB.adminfaxes.len, i++)
-						var/obj/machinery/photocopier/faxmachine/obj = GLOB.adminfaxes[i]
+					for(var/i=1, i>=LAZYLEN(GLOB.adminfaxes), i++)
+						var/obj/item/obj = GLOB.adminfaxes[i]
 						msg += "№ `[i]` | [obj.name]"
 					return jointext(msg, "\n")
 				else
@@ -186,15 +187,18 @@ GLOBAL_LIST(round_end_notifiees)
 
 				else if (istype(item, /obj/item/paper_bundle))
 					var/obj/item/paper_bundle/bundle = item
-					world.TgsChatBroadcast("__*Пачка документов*__", sender.channel)
+					world.TgsChatPrivateMessage("__*Пачка документов*__", sender)
+					var/i = 10
 					for (var/page = 1, page <= bundle.pages.len, page++)
 						var/list/msg = list()
 						msg += "===== Страница № `[page]` ====="
 						var/obj/item/obj = bundle.pages[page]
 						msg += istype(obj, /obj/item/paper) ? paper2text(obj) : istype(obj, /obj/item/photo) ? photo2text(obj) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [obj.type]"
 						msg += "--------------------------"
-						world.TgsChatBroadcast(jointext(msg, "\n"), sender.channel)
-					return "__*Конец пачки документов*__"
+						addtimer(CALLBACK(world, /world/proc/TgsChatPrivateMessage, jointext(msg, "\n"), sender), i)
+						i += 10
+					addtimer(CALLBACK(world, /world/proc/TgsChatPrivateMessage, "__*Конец пачки документов*__", sender), i)
+					return "Отправлено в личные сообщения [sender.mention]"
 
 				else return "Не удалось определить тип факса. Это баг сообщите куда подальше. Тип факса `[item.type]`"
 			// Нет факса с айди
@@ -206,18 +210,18 @@ GLOBAL_LIST(round_end_notifiees)
 			if(parampampam.len == 1)
 				var/list/msg = list()
 				msg += "__**Помощь по адресам и логотипам**__"
-				msg += "*Доступные логотипы:* NULL | EMPTY | [jointext(logo_list, " | ")]"
+				msg += "__*Доступные логотипы:*__ NULL | EMPTY | [jointext(logo_list, " | ")]\n"
 				var/list/selectable_languages = list()
 				for (var/key in global.all_languages)
 					var/datum/language/L = global.all_languages[key]
 					if (L.has_written_form)
 						selectable_languages += L.name
-				msg += "*Доступные языки:* [jointext(selectable_languages, " | ")]"
-				msg += "*Доступные адресаты:* [jointext(GLOB.alldepartments, " | ")]"
+				msg += "__*Доступные языки:*__ [jointext(selectable_languages, " | ")]\n"
+				msg += "__*Доступные адресаты:*__ [jointext(GLOB.alldepartments, " | ")]"
 				return jointext(msg, "\n")
 
 			// Не хватает аргументов
-			else if(parampampam.len < 10) return "Недостаточно кол-во аргументов. Требуется `9` получено `[parampampam.len - 1]`"
+			else if(parampampam.len < 9 || textTrue == null) return "Недостаточно кол-во аргументов. Требуется `9` получено `[parampampam.len - 2][textTrue == null?" и текст не найден":" и текст был найден"]`"
 			// Отправка факса
 			else
 				var/from = parampampam[2]
@@ -228,7 +232,7 @@ GLOBAL_LIST(round_end_notifiees)
 				var/headerLogo = parampampam[7]
 				var/footer = parampampam[8]
 				var/penMode = parampampam[9]
-				var/text = parampampam[10]
+				var/text = textTrue
 				// PARAMS CHECK START
 
 				// Destination
@@ -298,7 +302,7 @@ GLOBAL_LIST(round_end_notifiees)
 				// Это делается при отправке так или иначе
 				adminfax.generateHeader()
 				adminfax.generateFooter()
-				t = adminfax.parsepencode(t, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
+				adminfax.info = adminfax.parsepencode(adminfax.info, null, null, !penMode, null, TRUE) // Encode everything from pencode to html
 
 				if (adminfax.headerOn)
 					adminfax.info = adminfax.header + adminfax.info
@@ -371,5 +375,5 @@ GLOBAL_LIST(round_end_notifiees)
 	if(photo.scribble)
 		. += "**Подпись с обратной стороны:** [photo.scribble]"
 	. += "**Размер фото (в тайлах):** [photo.photo_size]X[photo.photo_size]"
-	. += "**Описание:** [photo.desc]"
+	. += "**Описание:** [photo.desc == ""?"*Нет описания фото*":photo.desc]"
 	. = jointext(., "\n")
