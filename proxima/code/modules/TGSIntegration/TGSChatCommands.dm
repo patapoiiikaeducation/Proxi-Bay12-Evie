@@ -152,7 +152,7 @@ GLOBAL_LIST(round_end_notifiees)
 
 /datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
 	var/list/textTrue = copytext_char(params, findtext_char(params, "```"))
-	var/list/parampampam = splittext_char(textTrue==null ? params : trim(copytext_char(params, 1, findtext_char(params, "```")-1), ", "))
+	var/list/parampampam = splittext_char(textTrue==null ? params : trim(copytext_char(params, 1, findtext_char(params, "```")-1)), ", ")
 
 	// TODO Заставить подтягиваться доступные логотипы динамически
 	// Look at /obj/item/paper/admin
