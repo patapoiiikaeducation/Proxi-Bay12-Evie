@@ -58,3 +58,50 @@ config_setting should be one of the following:
 					continue
 			active_players++
 	return active_players
+
+/proc/fax2TGS(var/obj/item/item, var/from, var/to, var/by, var/intercepted)
+	if(istype(item, /obj/item/paper))
+		world.TgsTargetedChatBroadcast(jointext(list("__**Перехват факса**__[intercepted?["\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]"]:""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", paper2text(item)), "\n"), TRUE)
+
+	else if (istype(item, /obj/item/photo))
+		world.TgsTargetedChatBroadcast(jointext(list("__**Перехват факса**__[intercepted?["\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]"]:""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", photo2text(item)), "\n"), TRUE)
+
+	else if (istype(item, /obj/item/paper_bundle))
+		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted?["\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]"]:""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", TRUE)
+		var/list/pack = bundle2text(item)
+		var/i = 10
+		for(var/string in pack)
+			i += 10
+			addtimer(CALLBACK(world, /world/proc/TgsTargetedChatBroadcast, string, TRUE), i)
+
+// Костыль для превращения факса в текст
+/proc/paper2text(var/obj/item/paper/paper)
+	. = list()
+	. += "**Название:** [paper.name]"
+	. += "**Язык написания:** [paper.language.name]"
+	// TODO пропарсить HTML в разметку, принимаемую дискордом?
+	. += "**Содержимое:**\n*Внимание - чистый HTML*\n```html\n[paper.info]```"
+	. = jointext(., "\n")
+
+// Костыль для превращения фото в текст
+/proc/photo2text(var/obj/item/photo/photo)
+	. = list()
+	. += "__*Просмотр фото не может быть имплементирован, но вот некоторые данные о нем*__"
+	. += "**Название:** [photo.name]"
+	if(photo.scribble)
+		. += "**Подпись с обратной стороны:** [photo.scribble]"
+	. += "**Размер фото (в тайлах):** [photo.photo_size]X[photo.photo_size]"
+	. += "**Описание:** [photo.desc == null ? "*Нет описания фото*" : photo.desc]"
+	. = jointext(., "\n")
+
+/proc/bundle2text(var/obj/item/paper_bundle/bundle)
+	. = list()
+	. += "__*Пачка документов*__
+	for (var/page = 1, page <= bundle.pages.len, page++)
+		var/list/msg = list()
+		msg += "===== Страница № `[page]` ====="
+		var/obj/item/obj = bundle.pages[page]
+		msg += istype(obj, /obj/item/paper) ? paper2text(obj) : istype(obj, /obj/item/photo) ? photo2text(obj) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [obj.type]"
+		msg += "--------------------------"
+		. += jointext(msg, "\n")
+	. += "__*Конец пачки документов*__"

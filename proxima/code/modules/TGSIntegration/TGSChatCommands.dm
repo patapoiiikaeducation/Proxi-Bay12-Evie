@@ -151,34 +151,38 @@ GLOBAL_LIST(round_end_notifiees)
 	admin_only = TRUE
 
 /datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
-	var/list/textTrue = copytext_char(params, findtext_char(params, "```"))
-	var/list/parampampam = splittext_char(textTrue==null ? params : trim(copytext_char(params, 1, findtext_char(params, "```")-1)), ", ")
+	var/textTrue = copytext_char(params, findtext_char(params, "```"))
+	if (textTrue!=null && textTrue!="")
+		params = replacetext_char(params, textTrue)
+		textTrue = replacetext_char(textTrue, "```", "")
+	var/command = splittext_char(params, " ")[1]
+	if (command == null || command == "")
+		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\nИспользование `fax комманда, аргументы(через запятую!!!)`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\[FROM\] \[DESTINATION\] \[TITLE\] \[STAMP\] \[LANGUAGE\] \[HEADER_LOGO\] \[FOOTER\] \[PEN_MODE\] \[TEXT\]\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
+	else
+		params = replacetext_char(params, (command+" "), "")
+	var/list/parampampam = splittext_char(params, ", ")
 
 	// TODO Заставить подтягиваться доступные логотипы динамически
 	// Look at /obj/item/paper/admin
 	var/logo_list = list("sollogo.png","eclogo.png","fleetlogo.png","armylogo.png","exologo.png","ntlogo.png","daislogo.png","xynlogo.png","terralogo.png", "sfplogo.png", "torchlogo.png")
 
-
-	if (parampampam.len == 0)
-		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\nИспользование `fax комманда, аргументы(через запятую!!!)`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\[FROM\] \[DESTINATION\] \[TITLE\] \[STAMP\] \[LANGUAGE\] \[HEADER_LOGO\] \[FOOTER\] \[PEN_MODE\] \[TEXT\]\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
-
-	switch(parampampam[1])
+	switch(command)
 		// Просмотр факсов
 		if("view")
 			// Без аргументов
-			if(parampampam.len == 1)
-				if(LAZYLEN(GLOB.adminfaxes))
+			if(parampampam.len == 0)
+				if(GLOB.adminfaxes)
 					var/list/msg = list()
 					msg += "**Вот доступные факсы:**"
-					for(var/i=1, i>=LAZYLEN(GLOB.adminfaxes), i++)
+					for(var/i = 1, i <= GLOB.adminfaxes.len, i++)
 						var/obj/item/obj = GLOB.adminfaxes[i]
 						msg += "№ `[i]` | [obj.name]"
 					return jointext(msg, "\n")
 				else
 					return "В этом раунде факсов для админов не было"
 			// С айди, и айди существует
-			else if(text2num(parampampam[2]) != null && text2num(parampampam[2]) <= GLOB.adminfaxes.len)
-				var/obj/item/item = GLOB.adminfaxes[text2num(parampampam[2])]
+			else if(text2num(parampampam[1]) != null && text2num(parampampam[1]) <= GLOB.adminfaxes.len)
+				var/obj/item/item = GLOB.adminfaxes[text2num(parampampam[1])]
 				if (istype(item, /obj/item/paper))
 					return paper2text(item)
 
@@ -186,28 +190,21 @@ GLOBAL_LIST(round_end_notifiees)
 					return photo2text(item)
 
 				else if (istype(item, /obj/item/paper_bundle))
-					var/obj/item/paper_bundle/bundle = item
-					world.TgsChatPrivateMessage("__*Пачка документов*__", sender)
-					var/i = 10
-					for (var/page = 1, page <= bundle.pages.len, page++)
-						var/list/msg = list()
-						msg += "===== Страница № `[page]` ====="
-						var/obj/item/obj = bundle.pages[page]
-						msg += istype(obj, /obj/item/paper) ? paper2text(obj) : istype(obj, /obj/item/photo) ? photo2text(obj) : "НЕИЗВЕСТНЫЙ ТИП БЮРОКРАТИЧЕСКОГО ОРУДИЯ ПЫТОК. ТИП: [obj.type]"
-						msg += "--------------------------"
-						addtimer(CALLBACK(world, /world/proc/TgsChatPrivateMessage, jointext(msg, "\n"), sender), i)
+					var/list/pack = bundle2text(item)
+					var/i = 0
+					for(var/string in pack)
 						i += 10
-					addtimer(CALLBACK(world, /world/proc/TgsChatPrivateMessage, "__*Конец пачки документов*__", sender), i)
+						addtimer(CALLBACK(world, /world/proc/TgsChatPrivateMessage, string, sender), i)
 					return "Отправлено в личные сообщения [sender.mention]"
 
 				else return "Не удалось определить тип факса. Это баг сообщите куда подальше. Тип факса `[item.type]`"
 			// Нет факса с айди
-			else return "Не удалось найти факс под номером № `[parampampam[2]]`"
+			else return "Не удалось найти факс под номером № `[parampampam[1]]`"
 
 		// Отправка факса
 		if("send")
 			// Без аргументов - подсказка
-			if(parampampam.len == 1)
+			if(parampampam.len == 0)
 				var/list/msg = list()
 				msg += "__**Помощь по адресам и логотипам**__"
 				msg += "__*Доступные логотипы:*__ NULL | EMPTY | [jointext(logo_list, " | ")]\n"
@@ -221,17 +218,17 @@ GLOBAL_LIST(round_end_notifiees)
 				return jointext(msg, "\n")
 
 			// Не хватает аргументов
-			else if(parampampam.len < 9 || textTrue == null) return "Недостаточно кол-во аргументов. Требуется `9` получено `[parampampam.len - 2][textTrue == null?" и текст не найден":" и текст был найден"]`"
+			else if(parampampam.len < 8 || textTrue == null) return "Недостаточно кол-во аргументов. Требуется `8` (без send и текста) получено `[parampampam.len][textTrue == null?" и текст не найден":" и текст был найден"]`"
 			// Отправка факса
 			else
-				var/from = parampampam[2]
-				var/destination = parampampam[3]
-				var/title = parampampam[4]
-				var/stamp = parampampam[5]
-				var/language = parampampam[6]
-				var/headerLogo = parampampam[7]
-				var/footer = parampampam[8]
-				var/penMode = parampampam[9]
+				var/from = parampampam[1]
+				var/destination = parampampam[2]
+				var/title = parampampam[3]
+				var/stamp = parampampam[4]
+				var/language = parampampam[5]
+				var/headerLogo = parampampam[6]
+				var/footer = parampampam[7]
+				var/penMode = parampampam[8]
 				var/text = textTrue
 				// PARAMS CHECK START
 
@@ -278,7 +275,6 @@ GLOBAL_LIST(round_end_notifiees)
 				else return "Неизвестное состояние ручки или мелка `[penMode]`"
 
 				// Text
-				text = replacetext_char(text, "```", "")
 				var/t = sanitize(text, MAX_PAPER_MESSAGE_LEN, extra = 0)
 				if(!t)
 					return "Ваш текст был уничтожен санитайзером. GGWP"
@@ -357,23 +353,3 @@ GLOBAL_LIST(round_end_notifiees)
 		else
 			// Я могу только прочитать или написать факс
 			return "Не удалось распознать аргумент `[parampampam[1]]`"
-
-// Костыль для превращения факса в текст
-/datum/tgs_chat_command/fax/proc/paper2text(var/obj/item/paper/paper)
-	. = list()
-	. += "**Название:** [paper.name]"
-	. += "**Язык написания:** [paper.language.name]"
-	// TODO пропарсить HTML в разметку, принимаемую дискордом?
-	. += "**Содержимое:**\n*Внимание - чистый HTML*\n```html\n[paper.info]```"
-	. = jointext(., "\n")
-
-// Костыль для превращения фото в текст
-/datum/tgs_chat_command/fax/proc/photo2text(var/obj/item/photo/photo)
-	. = list()
-	. += "__*Просмотр фото не может быть имплементирован, но вот некоторые данные о нем*__"
-	. += "**Название:** [photo.name]"
-	if(photo.scribble)
-		. += "**Подпись с обратной стороны:** [photo.scribble]"
-	. += "**Размер фото (в тайлах):** [photo.photo_size]X[photo.photo_size]"
-	. += "**Описание:** [photo.desc == ""?"*Нет описания фото*":photo.desc]"
-	. = jointext(., "\n")
