@@ -367,7 +367,6 @@ GLOBAL_LIST(round_end_notifiees)
 	if (!world.Export("byond://65.21.225102:1343"))
 		return "Это бессмысленно сейчас."
 	message_staff("Такой подлец по имени [sender.friendly_name] послал вас всех куда подальше")
-	to_world("Упс...")
 	for(var/client/C in GLOB.clients)
 		send_link(C, "byond://65.21.225102:1343")
 	return "Подлец, обосрал жизнь [GLOB.clients.len] людям!"
