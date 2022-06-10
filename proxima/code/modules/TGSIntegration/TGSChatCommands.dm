@@ -39,6 +39,10 @@
 	if(rtod - last_irc_check < IRC_STATUS_THROTTLE)
 		return
 	last_irc_check = rtod
+
+	if(GAME_STATE == RUNLEVEL_LOBBY)
+		return "Раунд еще подготавливается..."
+
 	var/list/msg = list()
 	var/list/positions = list()
 	var/list/nano_crew_manifest = nano_crew_manifest()
