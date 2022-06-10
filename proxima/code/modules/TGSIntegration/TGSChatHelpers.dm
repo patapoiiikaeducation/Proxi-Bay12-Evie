@@ -61,17 +61,18 @@ config_setting should be one of the following:
 
 /proc/fax2TGS(var/obj/item/item, var/from, var/to, var/by, var/intercepted = null)
 	if(istype(item, /obj/item/paper))
-		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[paper2text(item)]", TRUE)
+		world.TgsTargetedChatBroadcast("__**Перехват факса**__\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[paper2text(item)]", TRUE)
 	else if (istype(item, /obj/item/photo))
-		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[photo2text(item)]", TRUE)
+		world.TgsTargetedChatBroadcast("__**Перехват факса**__\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[photo2text(item)]", TRUE)
 	else if (istype(item, /obj/item/paper_bundle))
-		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", TRUE)
+		world.TgsTargetedChatBroadcast("__**Перехват факса**__\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", TRUE)
 		var/list/pack = bundle2text(item)
 		var/i = 10
 		for(var/string in pack)
 			i += 10
 			addtimer(CALLBACK(world, /world/proc/TgsTargetedChatBroadcast, string, TRUE), i)
 
+//[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]
 // Костыль для превращения факса в текст
 /proc/paper2text(var/obj/item/paper/paper)
 	. = list()
