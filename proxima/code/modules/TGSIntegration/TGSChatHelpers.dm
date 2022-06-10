@@ -60,7 +60,6 @@ config_setting should be one of the following:
 	return active_players
 
 /proc/fax2TGS(var/obj/item/o, var/from, var/to, var/by, var/intercepted = null)
-	. = TRUE
 	var/obj/item/item = o
 	if(istype(item, /obj/item/paper))
 		world.TgsTargetedChatBroadcast("__**Перехват факса**__\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[paper2text(item)]", TRUE)
@@ -73,6 +72,7 @@ config_setting should be one of the following:
 		for(var/string in pack)
 			i += 10
 			addtimer(CALLBACK(world, /world/proc/TgsTargetedChatBroadcast, string, TRUE), i)
+	return TRUE
 
 //[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]
 // Костыль для превращения факса в текст
