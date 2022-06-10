@@ -157,7 +157,7 @@ GLOBAL_LIST(round_end_notifiees)
 /datum/tgs_chat_command/fax/Run(datum/tgs_chat_user/sender, params)
 	var/textTrue = copytext_char(params, findtext_char(params, "```"))
 	if (textTrue!=null && textTrue!="")
-		params = replacetext_char(params, textTrue)
+		params = replacetext_char(params, textTrue, "")
 		textTrue = replacetext_char(textTrue, "```", "")
 	var/command = splittext_char(params, " ")[1]
 	if (command == null || command == "")
