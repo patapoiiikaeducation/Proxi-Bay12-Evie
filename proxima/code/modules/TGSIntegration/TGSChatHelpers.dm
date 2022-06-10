@@ -59,13 +59,11 @@ config_setting should be one of the following:
 			active_players++
 	return active_players
 
-/proc/fax2TGS(var/obj/item/item, var/from="Bridge", var/to="Admin", var/by="Player", var/intercepted=null)
+/proc/fax2TGS(var/obj/item/item, var/from = "Bridge", var/to = "Admin", var/by = "Player", var/intercepted = null)
 	if(istype(item, /obj/item/paper))
 		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[paper2text(item)]", TRUE)
-
 	else if (istype(item, /obj/item/photo))
 		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__\n[photo2text(item)]", TRUE)
-
 	else if (istype(item, /obj/item/paper_bundle))
 		world.TgsTargetedChatBroadcast("__**Перехват факса**__[intercepted ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted]":""]\n**ОТ:** __[from]__\n**КУДА:** __[to]__\n**ОТПРАВИЛ:** __[by]__", TRUE)
 		var/list/pack = bundle2text(item)
