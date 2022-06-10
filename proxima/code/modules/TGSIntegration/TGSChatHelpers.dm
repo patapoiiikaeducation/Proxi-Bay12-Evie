@@ -96,7 +96,7 @@ config_setting should be one of the following:
 
 /proc/bundle2text(var/obj/item/paper_bundle/bundle)
 	. = list()
-	. += "__*Пачка документов*__
+	. += "__*Пачка документов*__"
 	for (var/page = 1, page <= bundle.pages.len, page++)
 		var/list/msg = list()
 		msg += "===== Страница № `[page]` ====="
