@@ -159,7 +159,8 @@ GLOBAL_LIST(round_end_notifiees)
 	if (textTrue!=null && textTrue!="")
 		params = replacetext_char(params, textTrue, "")
 		textTrue = replacetext_char(textTrue, "```", "")
-	var/command = splittext_char(params, " ").len ? splittext_char(params, " ")[1] : null
+	var/list/tmpList = splittext_char(params, " ")
+	var/command = tmpList.len ? tmpList[1] : null
 	if (command == null || command == "")
 		return "Дорогой [sender.mention], пожалуйста, ознакомься с тем как использовать эту команду.\n\nИспользование `fax комманда, аргументы(через запятую!!!)`\n\n__Команды:__\n\n1. **view \[ID\]** - без *ID* показывает список факсов полученных админами и посланных. С *ID* - показывает конкретный факс и его данные.\n\n2. **send \[\[FROM\] \[DESTINATION\] \[TITLE\] \[STAMP\] \[LANGUAGE\] \[HEADER_LOGO\] \[FOOTER\] \[PEN_MODE\] \[TEXT\]\]** - без аргументов - получить подсказку по написанию факсов, в том числе доступные __адреса для отправки__. С параметрами - написать факс все аргументы обязательны:\n*DESTINATION* - куда отправить факс (адрес должен существовать)\n*FROM* - от кого, ЦК, НаноТрейзн, Родная и любимая Бабушка - все что угодно\n*TITLE* - заголовок для факса\n*STAMP* - нужна ли печать (учтите печать принадлежит адресату то есть может быть 'Печать Квантового Реле Родной и любимой Бабушки'. Значения `TRUE`/`FALSE` или 1/0\n*LANGUAGE* - язык на котором написан факс, должен быть в списке\n*HEADER_LOGO* - логотип для заголовка. Так же может быть в значении `EMPTY` для заголовка без логотипа и `NULL` для факса без заголовка\n*FOOTER* - нужен ли мелкий текст (...уведомите отправителя и ЦК если хешключ не совпададает ля-ля...) значения `TRUE`/`FALSE` или 1/0\n*PEN_MODE* - зачем вы пишите факс мелком? Вы клоуны? Значения `PEN`/`CRAYON`\n*TEXT* - сообственно текст факса. Форматирование такое же как и в игре, НО перед текстом и после него добавьте ```\n\n*Использование тэга \[field\] недоступно.*"
 	else
@@ -168,7 +169,8 @@ GLOBAL_LIST(round_end_notifiees)
 
 	// Копируем инфомрацию по логотипам из /obj/item/paper/admin
 	var/obj/item/paper/admin/adminPaper = new /obj/item/paper/admin( null )
-	var/logo_list = adminPaper.logo_list.Copy()
+	var/list/logo_list = adminPaper.logo_list
+	logo_list = logo_list.Copy()
 	QDEL_IN(adminPaper, 100)
 
 	switch(command)
