@@ -63,11 +63,11 @@ config_setting should be one of the following:
 	var/list/admins = get_admin_counts()["present"]
 	var/obj/item/item = o3
 	if(istype(item, /obj/item/paper))
-		world.TgsTargetedChatBroadcast("[admins.len > 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__\n[paper2text(item)]", TRUE)
+		world.TgsTargetedChatBroadcast("[admins.len = 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__\n[paper2text(item)]", TRUE)
 	else if (istype(item, /obj/item/photo))
-		world.TgsTargetedChatBroadcast("[admins.len > 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__\n[photo2text(item)]", TRUE)
+		world.TgsTargetedChatBroadcast("[admins.len = 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__\n[photo2text(item)]", TRUE)
 	else if (istype(item, /obj/item/paper_bundle))
-		world.TgsTargetedChatBroadcast("[admins.len > 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__", TRUE)
+		world.TgsTargetedChatBroadcast("[admins.len = 0 ? "<@&984927384513953852> активных админов с Банхамером нет\n" : null]__**Перехват факса**__[intercepted3 ? "\n***ФАКС БЫЛ ПЕРЕХВАЧЕН, ПОЛУЧАТЕЛЬ ЕГО __НЕ ВИДИТ__***: [intercepted3]":""]\n**ОТ:** __[from3]__\n**КУДА:** __[to3]__\n**ОТПРАВИЛ:** __[by3]__", TRUE)
 		var/list/pack = bundle2text(item)
 		var/i = 10
 		for(var/string in pack)
