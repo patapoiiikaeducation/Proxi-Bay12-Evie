@@ -226,7 +226,7 @@ GLOBAL_LIST(round_end_notifiees)
 			else if(parampampam.len < 8 || textTrue == null) return "Недостаточно кол-во аргументов. Требуется `8` (без send и текста) получено `[parampampam.len][textTrue == null?" и текст не найден":" и текст был найден"]`"
 			// Отправка факса
 			else
-				var/from = parampam	pam[1]
+				var/from = parampampam[1]
 				var/destination = parampampam[2]
 				var/title = parampampam[3]
 				var/stamp = parampampam[4]
