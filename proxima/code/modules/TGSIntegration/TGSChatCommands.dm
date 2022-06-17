@@ -176,7 +176,7 @@ GLOBAL_LIST(round_end_notifiees)
 		if("view")
 			// Без аргументов
 			if(parampampam.len == 0)
-				if(GLOB.adminfaxes)
+				if(GLOB.adminfaxes && GLOB.adminfaxes.len)
 					var/list/msg = list()
 					msg += "**Вот доступные факсы:**"
 					for(var/i = 1, i <= GLOB.adminfaxes.len, i++)
