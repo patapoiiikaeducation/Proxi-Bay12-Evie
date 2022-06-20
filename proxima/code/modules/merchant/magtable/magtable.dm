@@ -32,7 +32,7 @@
 
 damage_health
 
-/obj/structure/table/mag/damage_health(amount)
+/obj/structure/table/mag/damage_health(damage)
 	..()
 	if(health_current <= 10 && locked)
 		toggle_lock()
